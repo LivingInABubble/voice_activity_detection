@@ -1,5 +1,4 @@
-tensorflow==1.12.0
-numpy
+tensorflow/tensorflow-cpu
 matplotlib
 seaborn
 scipy
