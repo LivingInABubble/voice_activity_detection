@@ -23,7 +23,7 @@ class VadEstimator(object):
 
         losses = tf.nn.sigmoid_cross_entropy_with_logits(labels=label, logits=pred)
         loss = tf.reduce_sum(losses) / params['batch_size']
-        tf.summary.scalar('loss', tensor=loss)
+        tf.compat.v1.summary.scalar('loss', tensor=loss)
         return loss
 
     def model_fn(self, features, labels, mode, params):
@@ -32,15 +32,16 @@ class VadEstimator(object):
 
         # Training op
         if mode == tf.estimator.ModeKeys.TRAIN:
-            optimizer = tf.train.AdamOptimizer(learning_rate=params['lr'])
+            optimizer = tf.compat.v1.train.AdamOptimizer(learning_rate=params['lr'])
 
             predictions = {'speech': preds}
             loss = self.loss_fn(labels, predictions, params)
-            train_op = tf.contrib.training.create_train_op(loss, optimizer, global_step=tf.train.get_global_step())
+            train_op = tf.contrib.training.create_train_op(loss, optimizer,
+                                                           global_step=tf.compat.v1.train.get_global_step())
 
             pred_val = tf.round(tf.nn.sigmoid(predictions['speech']))
-            acc = tf.metrics.accuracy(labels=labels['label'], predictions=pred_val)
-            tf.summary.scalar('acc', tensor=acc[1], family='accuracy')
+            acc = tf.compat.v1.metrics.accuracy(labels=labels['label'], predictions=pred_val)
+            tf.compat.v1.summary.scalar('acc', tensor=acc[1], family='accuracy')
             return tf.estimator.EstimatorSpec(mode=mode, loss=loss, train_op=train_op)
 
         # Evaluation op

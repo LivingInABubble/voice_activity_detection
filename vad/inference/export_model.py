@@ -1,6 +1,7 @@
-import argparse
-import logging
-import sys
+from argparse import ArgumentParser
+from logging import basicConfig, getLogger, DEBUG
+from sys import stdout
+
 import numpy as np
 import tensorflow as tf
 
@@ -9,7 +10,7 @@ from vad.training.input_pipeline import FEAT_SIZE
 
 
 def main():
-    parser = argparse.ArgumentParser(description='export trained TensorFlow model for inference')
+    parser = ArgumentParser(description='export trained TensorFlow model for inference')
     parser.add_argument('--model-dir', type=str, default='', help='pretrained model directory')
     parser.add_argument('--ckpt', type=str, default='', help='pretrained checkpoint directory')
     parser.add_argument('--model', type=str, default='resnet1d', help='model name')
@@ -24,8 +25,8 @@ def main():
     assert len(args.n_kernels.split('-')) == 3, '3 values required for --n-kernels'
     assert len(args.n_fc_units.split('-')) == 2, '2 values required --n-fc-units'
 
-    logging.basicConfig(level=logging.DEBUG, stream=sys.stdout)
-    logger = logging.getLogger(__name__)
+    basicConfig(level=DEBUG, stream=stdout)
+    logger = getLogger(__name__)
     np.random.seed(0)
     tf.set_random_seed(0)
     tf.logging.set_verbosity(tf.logging.INFO)

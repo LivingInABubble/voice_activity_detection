@@ -1,33 +1,24 @@
 import os
-from absl import flags, app
-import time
-
-import numpy as np
-import tensorflow as tf
 from collections import deque
-import seaborn as sns
+from time import time
+
 import matplotlib.pyplot as plt
+import numpy as np
+import seaborn as sns
+import tensorflow as tf
+from absl import flags, app
 
 from vad.data_processing.data_iterator import split_data, file_iter
 from vad.data_processing.feature_extraction import extract_features
 from vad.training.input_pipeline import FEAT_SIZE
 
-
-flags.DEFINE_string('data_dir',
-                    '/home/filippo/datasets/LibriSpeech/',
-                    'path to data directory')
-flags.DEFINE_string('exported_model',
-                    '/home/filippo/datasets/LibriSpeech/tfrecords/models/resnet1d/inference/exported/',
-                    'path to pretrained TensorFlow exported model')
-flags.DEFINE_integer('seq_len',
-                     1024,
-                     'sequence length for speech prediction')
-flags.DEFINE_integer('stride',
-                     1,
-                     'stride for sliding window prediction')
-flags.DEFINE_boolean('smoothing',
-                     False,
-                     'apply smoothing feature')
+flags.DEFINE_string(name='data_dir', default='../LibriSpeech/', help='path to data directory')
+flags.DEFINE_string(name='exported_model',
+                    default='../LibriSpeech/tfrecords/models/resnet1d/inference/exported/',
+                    help='path to pretrained TensorFlow exported model')
+flags.DEFINE_integer(name='seq_len', default=1024, help='sequence length for speech prediction')
+flags.DEFINE_integer(name='stride', default=1, help='stride for sliding window prediction')
+flags.DEFINE_boolean(name='smoothing', default=False, help='apply smoothing feature')
 FLAGS = flags.FLAGS
 
 
@@ -104,7 +95,7 @@ def main(_):
             preds, pred_time = [], []
             pointer = FLAGS.seq_len
             while pointer < len(signal):
-                start = time.time()
+                start = time()
                 # Preprocess signal & extract features
                 signal_to_process = np.copy(signal_input)
                 signal_to_process = np.float32(signal_to_process)
@@ -116,7 +107,7 @@ def main(_):
                 speech_pred = classes[int(np.round(speech_prob))]
 
                 # Time prediction & processing
-                end = time.time()
+                end = time()
                 dt = end - start
                 pred_time.append(dt)
                 print('Prediction = {} | proba = {:.2f} | time = {:.2f} s'.format(speech_pred, speech_prob[0], dt))

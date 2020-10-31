@@ -1,12 +1,11 @@
-import os
-import argparse
-import glob
+from argparse import ArgumentParser
+from glob import glob
+from os import environ
 
-import tensorflow as tf
-import numpy as np
 import matplotlib.pyplot as plt
+import numpy as np
 import seaborn as sns
-
+import tensorflow as tf
 
 FEAT_SIZE = (16, 65)
 
@@ -53,9 +52,9 @@ def get_dataset(tfrecords,
         return features, labels
 
     files = tf.data.Dataset.list_files(tfrecords)
-    dataset = files.apply(tf.contrib.data.parallel_interleave(tf.data.TFRecordDataset, cycle_length=10))
+    dataset = files.apply(tf.data.experimental.parallel_interleave(tf.data.TFRecordDataset, cycle_length=10))
     if shuffle:
-        dataset = dataset.apply(tf.contrib.data.shuffle_and_repeat(buffer_size=256, count=epochs))
+        dataset = tf.data.Dataset.shuffle(dataset, buffer_size=256).repeat(count=epochs)
     else:
         dataset = dataset.repeat(epochs)
     dataset = dataset.map(parse_func, num_parallel_calls=8)
@@ -83,7 +82,7 @@ def data_input_fn(tfrecords,
                               shuffle,
                               fake_input)
 
-        it = dataset.make_one_shot_iterator()
+        it = tf.compat.v1.data.make_one_shot_iterator(dataset)
         next_batch = it.get_next()
 
         signal_input = next_batch[0]['subsegment/signal']
@@ -105,15 +104,15 @@ def data_input_fn(tfrecords,
 
 
 def main():
-    parser = argparse.ArgumentParser(description='visualize input pipeline')
+    parser = ArgumentParser(description='visualize input pipeline')
     parser.add_argument('--data-dir', '-d', type=str, default='/home/filippo/datasets/LibriSpeech/tfrecords/')
     parser.add_argument('--n-classes', '-n', type=int, default=1)
     parser.add_argument('--data-type', '-t', type=str, default='train')
     args = parser.parse_args()
 
     classes = ['Noise', 'Speech']
-    os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
-    tfrecords = glob.glob('{}{}/*.tfrecord'.format(args.data_dir, args.data_type))
+    environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
+    tfrecords = glob('{}{}/*.tfrecord'.format(args.data_dir, args.data_type))
     dataset = get_dataset(tfrecords,
                           batch_size=32,
                           epochs=1,

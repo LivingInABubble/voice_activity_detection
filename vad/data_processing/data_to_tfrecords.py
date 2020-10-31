@@ -1,15 +1,14 @@
 import os
-import multiprocessing
-from absl import flags, app
 from copy import deepcopy
+from multiprocessing import Pool
 
-from tqdm import tqdm
-import tensorflow as tf
 import numpy as np
+import tensorflow as tf
+from absl import flags, app
+from tqdm import tqdm
 
 from vad.data_processing.data_iterator import split_data, slice_iter
 from vad.data_processing.feature_extraction import extract_features
-
 
 flags.DEFINE_string(name='data_dir', default='../LibriSpeech/', help='data directory path')
 flags.DEFINE_string(name='data_split', default='0.7/0.15', help='train/val split')
@@ -89,7 +88,7 @@ def write_tfrecords(path, dataiter, num_shards=256, nmax=-1):
         tf.io.TFRecordWriter('{}{:05d}_{:05d}.tfrecord'.format(path, i, num_shards)) for i in range(num_shards)
     ]
     print('\nWriting to output path: {}'.format(path))
-    pool = multiprocessing.Pool()
+    pool = Pool()
     counter = 0
     for i, tf_example in tqdm(enumerate(pool.imap(pool_create_tf_example, [(deepcopy(data['file_id']),
                                                                             deepcopy(data['start']),

@@ -1,22 +1,23 @@
-import os
-import glob
-import argparse
-import logging
-import sys
+from argparse import ArgumentParser
 from datetime import datetime
+from glob import glob
+from logging import basicConfig, getLogger, DEBUG
+from os import makedirs
+from os.path import exists
+from sys import stdout
 
-import numpy as np
-import tensorflow as tf
 import matplotlib.pyplot as plt
+import numpy as np
 import seaborn as sns
+import tensorflow as tf
 
-from vad.training.input_pipeline import data_input_fn
 from vad.training.estimator import VadEstimator
+from vad.training.input_pipeline import data_input_fn
 
 
 def main():
-    parser = argparse.ArgumentParser(description='train CNN for VAD')
-    parser.add_argument('--data-dir', '-d', type=str, default='/home/filippo/datasets/LibriSpeech/tfrecords/',
+    parser = ArgumentParser(description='train CNN for VAD')
+    parser.add_argument('--data-dir', '-d', type=str, default='../LibriSpeech/tfrecords/',
                         help='tf records data directory')
     parser.add_argument('--model-dir', type=str, default='', help='pretrained model directory')
     parser.add_argument('--ckpt', type=str, default='', help='pretrained checkpoint directory')
@@ -39,20 +40,20 @@ def main():
     assert len(args.n_kernels.split('-')) == 3, '3 values required for --n-kernels'
     assert len(args.n_fc_units.split('-')) == 2, '2 values required --n-fc-units'
 
-    tfrecords_train = glob.glob('{}train/*.tfrecord'.format(args.data_dir))
-    tfrecords_val = glob.glob('{}val/*.tfrecord'.format(args.data_dir))
-    tfrecords_test = glob.glob('{}test/*.tfrecord'.format(args.data_dir))
+    tfrecords_train = glob('{}train/*.tfrecord'.format(args.data_dir))
+    tfrecords_val = glob('{}val/*.tfrecord'.format(args.data_dir))
+    tfrecords_test = glob('{}test/*.tfrecord'.format(args.data_dir))
 
-    logging.basicConfig(level=logging.DEBUG, stream=sys.stdout)
-    logger = logging.getLogger(__name__)
+    basicConfig(level=DEBUG, stream=stdout)
+    logger = getLogger(__name__)
     np.random.seed(0)
-    tf.set_random_seed(0)
-    tf.logging.set_verbosity(tf.logging.INFO)
+    tf.compat.v1.set_random_seed(0)
+    tf.compat.v1.logging.set_verbosity(tf.compat.v1.logging.INFO)
 
     if not args.model_dir:
         save_dir = '{}models/{}/{}/'.format(args.data_dir, args.model, datetime.now().isoformat())
-        if not os.path.exists(save_dir):
-            os.makedirs(save_dir)
+        if not exists(save_dir):
+            makedirs(save_dir)
     else:
         save_dir = args.model_dir
 
