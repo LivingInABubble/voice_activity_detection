@@ -2,3 +2,4 @@
 vad/LibriSpeech/
 vad/exported/
 voice_activity_detection.egg-info/
+*.pyc
