@@ -12,7 +12,7 @@ from vad.data_processing.data_iterator import split_data, file_iter
 from vad.data_processing.feature_extraction import extract_features
 from vad.training.input_pipeline import FEAT_SIZE
 
-flags.DEFINE_string(name='data_dir', default='../LibriSpeech/', help='path to data directory')
+flags.DEFINE_string(name='data_dir', default='./LibriSpeech/', help='path to data directory')
 flags.DEFINE_string(name='exported_model',
                     default='../LibriSpeech/tfrecords/models/resnet1d/inference/exported/',
                     help='path to pretrained TensorFlow exported model')

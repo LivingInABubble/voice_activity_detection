@@ -118,7 +118,7 @@ $ python3 training/train.py --data-dir /path/to/LibriSpeech/tfrecords/
 
 ```
 $ python3 inference/export_model.py --model-dir /path/to/trained/model/dir/
-                                    --ckpt /path/to/trained/model/dir/
+
 $ python3 inference/inference.py --data_dir /path/to/LibriSpeech/
                                  --exported_model /path/to/exported/model/
                                  --smoothing
